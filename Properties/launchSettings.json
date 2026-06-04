@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "EnergyIQ": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:4200"
+    }
+  }
+}
