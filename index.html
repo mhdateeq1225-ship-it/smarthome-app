@@ -11,19 +11,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <input id="username" placeholder="Username" style="display:block;margin:5px 0;padding:8px;">
-  <input id="email" placeholder="Email" style="display:block;margin:5px 0;padding:8px;">
-  <input id="password" type="password" placeholder="Password" style="display:block;margin:5px 0;padding:8px;">
-
-  <button onclick="signupUser()" style="padding:8px 12px;margin-top:10px;">
-  </button>
-</div>
- <!-- IMPORTANT -->
-  <script src="app.js"></script>
-  </body>
-</html>
-
   <!-- ============================================================
        LOGIN SCREEN
   ============================================================ -->
@@ -63,7 +50,7 @@
             <button class="toggle-pw" id="toggle-pw-signin" type="button">👁</button>
           </div>
         </div>
-        <p id="login-error" class="login-error hidden">Incorrect credentials. Try <strong>admin / 1234</strong></p>
+        <p id="login-error" class="login-error hidden">Incorrect credentials. Please try again.</p>
         <div class="form-group login-meta-row">
           <label class="checkbox-label">
             <input id="remember-me" type="checkbox" /> Remember me
@@ -72,7 +59,7 @@
         </div>
         <button id="login-btn" class="btn btn-primary btn-full">Sign In →</button>
         <button id="guest-btn" class="btn btn-ghost btn-full">Continue as Guest</button>
-        <p class="login-hint">Demo: <strong>admin</strong> / <strong>1234</strong></p>
+        
       </div>
 
       <!-- CREATE ACCOUNT PANEL -->
@@ -82,37 +69,31 @@
 
         <div class="form-group">
           <label for="signup-name">Full Name</label>
-          <div class="input-icon-wrap">
-            <span class="input-icon">✏️</span>
+          <div class="input-icon-wrap no-icon">
             <input id="signup-name" type="text" placeholder="e.g. Alex Johnson" />
           </div>
         </div>
         <div class="form-group">
           <label for="signup-email">Email Address</label>
-          <div class="input-icon-wrap">
-            <span class="input-icon">📧</span>
+          <div class="input-icon-wrap no-icon">
             <input id="signup-email" type="email" placeholder="you@example.com" />
           </div>
         </div>
         <div class="form-group">
           <label for="signup-username">Choose Username</label>
-          <div class="input-icon-wrap">
-            <span class="input-icon">👤</span>
+          <div class="input-icon-wrap no-icon">
             <input id="signup-username" type="text" placeholder="e.g. alex123" />
           </div>
         </div>
         <div class="form-group">
           <label for="signup-password">Password</label>
-          <div class="input-icon-wrap">
-            <span class="input-icon">🔒</span>
+          <div class="input-icon-wrap no-icon">
             <input id="signup-password" type="password" placeholder="Min. 4 characters" />
-            <button class="toggle-pw" id="toggle-pw-signup" type="button">👁</button>
           </div>
         </div>
         <div class="form-group">
           <label for="signup-confirm">Confirm Password</label>
-          <div class="input-icon-wrap">
-            <span class="input-icon">🔒</span>
+          <div class="input-icon-wrap no-icon">
             <input id="signup-confirm" type="password" placeholder="Re-enter password" />
           </div>
         </div>
@@ -1420,6 +1401,7 @@
 
   <script src="Smarthome App/StorageService.js"></script>
   <script src="Smarthome App/AuthService.js"></script>
+  <script src="wwwroot/js/api.js"></script>
   <script src="script.js"></script>
 <script>
   // =========================
