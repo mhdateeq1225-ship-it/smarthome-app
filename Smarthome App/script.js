@@ -228,6 +228,27 @@ function clearAuthFields() {
   document.getElementById('signup-success')?.classList.add('hidden');
 }
 
+// Hidden dummy fields to intercept late browser autofill (Safari workaround)
+function interceptAutofill() {
+  try {
+    const form = document.createElement('form');
+    form.style.position = 'absolute';
+    form.style.left = '-9999px';
+    form.setAttribute('aria-hidden', 'true');
+    form.innerHTML = '<input id="__fake_user" autocomplete="username" />' +
+                     '<input id="__fake_pass" type="password" autocomplete="current-password" />';
+    document.body.appendChild(form);
+    const fu = document.getElementById('__fake_user');
+    const fp = document.getElementById('__fake_pass');
+    if (fu) fu.focus();
+    if (fp) fp.focus();
+    setTimeout(() => {
+      try { fu.value = ''; fp.value = ''; } catch (e) {}
+      if (form && form.parentNode) form.parentNode.removeChild(form);
+    }, 250);
+  } catch (e) {}
+}
+
 /* ---------------------------------------------------------------
    SCREEN NAVIGATION (Login ↔ App)
 --------------------------------------------------------------- */
@@ -1758,6 +1779,7 @@ document.addEventListener('DOMContentLoaded', () => {
   prefillRememberedLogin();
   // Safari sometimes fills inputs after load; clear again shortly after start
   setTimeout(() => { try { clearAuthFields(); } catch (e) {} }, 300);
+  setTimeout(() => { try { interceptAutofill(); } catch (e) {} }, 350);
 
   // If user was already logged in, skip login screen
   if (state.currentUser) {
