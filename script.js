@@ -82,6 +82,49 @@ let state = {
 /* ---------------------------------------------------------------
    LOCAL STORAGE HELPERS
 --------------------------------------------------------------- */
+function resetUserState() {
+  state.devices = [];
+  state.notifications = [];
+  state.prefs = {
+    darkMode:     true,
+    alerts:       true,
+    emailNotif:   false,
+    weeklySummary:false,
+    notificationMethod: 'app',
+    energyTarget: 500,
+    rememberLogin: false,
+    autoRefresh:  false,
+    threshold:    ALERT_DEFAULT,
+    currency:     'USD',
+  };
+  state.budget = {
+    monthlyLimit: 150,
+    currentSpent: 0,
+  };
+  state.goals = {
+    weeklyTarget: 400,
+    reductionTarget: 15,
+  };
+  state.achievements = {
+    firstDevice: null,
+    fiveDevices: null,
+  };
+  state.integrations = {
+    mobileNotif: false,
+    emailDigest: false,
+    smartHome:   false,
+    utility:     false,
+    calendar:    false,
+    export:      false,
+  };
+  state.automationRules = [];
+  state.gamification = {
+    streak: 0,
+    points: 0,
+    badges: 3,
+  };
+}
+
 function save() {
   StorageService.saveState(state);
 }
@@ -109,6 +152,11 @@ async function load() {
     });
     state.accounts.push(admin);
     save();
+  }
+
+  if (state.currentUser?.username) {
+    resetUserState();
+    StorageService.loadUserState(state, state.currentUser.username);
   }
 }
 
@@ -255,6 +303,7 @@ function prefillRememberedLogin() {
 }
 
 function handleGuestLogin() {
+  resetUserState();
   state.currentUser = {
     username: 'guest',
     name:     'Guest User',
@@ -295,6 +344,8 @@ async function handleLogin() {
       address:  account.address || '',
       plan:     account.plan || 'Free',
     };
+    resetUserState();
+    StorageService.loadUserState(state, account.username);
     state.prefs.rememberLogin = remember;
     if (remember) {
       StorageService.save(StorageService.keys.rememberUsername, uname);
@@ -370,6 +421,7 @@ async function handleSignup() {
    AUTH — LOGOUT
 --------------------------------------------------------------- */
 function handleLogout() {
+  save();
   state.currentUser = null;
   StorageService.remove(StorageService.keys.currentUser);
   stopAutoRefresh();
