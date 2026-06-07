@@ -1,3 +1,13 @@
 {
-  "explorer.sortOrder": "filesFirst"
+  "explorer.sortOrder": "filesFirst",
+  "[sql]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+  "sql.dialect": "mysql",
+  "sql.linting.enabled": false,
+  "mssql.lintingEnabled": false,
+  "problems.exclude": {
+    "**/*.sql": true
+  }
 }
