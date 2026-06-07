@@ -218,6 +218,17 @@ function getLastLoginLabel() {
 }
 
 /* ---------------------------------------------------------------
+   AUTH — HELPERS
+--------------------------------------------------------------- */
+function clearAuthFields() {
+  ['password','signup-name','signup-email','signup-username','signup-password','signup-confirm']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('login-error')?.classList.add('hidden');
+  document.getElementById('signup-error')?.classList.add('hidden');
+  document.getElementById('signup-success')?.classList.add('hidden');
+}
+
+/* ---------------------------------------------------------------
    SCREEN NAVIGATION (Login ↔ App)
 --------------------------------------------------------------- */
 function showApp() {
@@ -229,9 +240,9 @@ function showApp() {
 function showLogin() {
   document.getElementById('app-shell').classList.remove('active');
   document.getElementById('login-screen').classList.add('active');
+  // clear transient inputs and restore remembered username
+  clearAuthFields();
   prefillRememberedLogin();
-  document.getElementById('password').value  = '';
-  document.getElementById('login-error').classList.add('hidden');
 }
 
 function prefillRememberedLogin() {
@@ -376,6 +387,10 @@ function switchAuthTab(tab) {
   document.querySelectorAll('.auth-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === `panel-${tab}`);
   });
+
+  // Clear transient auth inputs/messages on any tab switch
+  clearAuthFields();
+  if (tab === 'signin') prefillRememberedLogin();
 }
 
 /* ---------------------------------------------------------------

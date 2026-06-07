@@ -196,6 +196,19 @@ function getLastLoginLabel() {
 }
 
 /* ---------------------------------------------------------------
+   AUTH — HELPERS
+--------------------------------------------------------------- */
+function clearAuthFields() {
+  // Clear most auth inputs (preserve `username` so remembered login still works)
+  ['password','signup-name','signup-email','signup-username','signup-password','signup-confirm']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  // Hide any visible messages
+  document.getElementById('login-error')?.classList.add('hidden');
+  document.getElementById('signup-error')?.classList.add('hidden');
+  document.getElementById('signup-success')?.classList.add('hidden');
+}
+
+/* ---------------------------------------------------------------
    SCREEN NAVIGATION (Login ↔ App)
 --------------------------------------------------------------- */
 function showApp() {
@@ -207,9 +220,9 @@ function showApp() {
 function showLogin() {
   document.getElementById('app-shell').classList.remove('active');
   document.getElementById('login-screen').classList.add('active');
+  // ensure inputs are cleared and remembered username is restored
+  clearAuthFields();
   prefillRememberedLogin();
-  document.getElementById('password').value  = '';
-  document.getElementById('login-error').classList.add('hidden');
 }
 
 function prefillRememberedLogin() {
@@ -352,6 +365,11 @@ function switchAuthTab(tab) {
   document.querySelectorAll('.auth-panel').forEach(panel => {
     panel.classList.toggle('active', panel.id === `panel-${tab}`);
   });
+
+  // Clear transient auth inputs/messages on any tab switch
+  clearAuthFields();
+  // If switching to sign-in, restore remembered username
+  if (tab === 'signin') prefillRememberedLogin();
 }
 
 /* ---------------------------------------------------------------
