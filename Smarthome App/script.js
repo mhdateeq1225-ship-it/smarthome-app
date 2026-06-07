@@ -1756,6 +1756,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupAppListeners();
   prefillRememberedLogin();
+  // Safari sometimes fills inputs after load; clear again shortly after start
+  setTimeout(() => { try { clearAuthFields(); } catch (e) {} }, 300);
 
   // If user was already logged in, skip login screen
   if (state.currentUser) {

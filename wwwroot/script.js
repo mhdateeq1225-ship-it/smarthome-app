@@ -1812,6 +1812,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupAppListeners();
   prefillRememberedLogin();
+  // Run a short delayed clear to counteract late autofill (Safari quirk)
+  setTimeout(() => { try { clearAuthFields(); } catch (e) {} }, 300);
 
   // If user was already logged in, skip login screen
   if (state.currentUser) {

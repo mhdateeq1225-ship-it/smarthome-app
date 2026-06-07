@@ -1770,7 +1770,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   setupAppListeners();
   prefillRememberedLogin();
-
+  // Safari and some browsers sometimes autofill inputs a short time
+  // after page load. Run a delayed clear to override late autofill.
+  setTimeout(() => { try { clearAuthFields(); } catch (e) {} }, 300);
   // If user was already logged in, skip login screen
   if (state.currentUser) {
     showApp();
