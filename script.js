@@ -156,6 +156,8 @@ async function load() {
 
   if (state.currentUser?.username) {
     resetUserState();
+    // Clear legacy data on page reload to prevent cross-user contamination
+    StorageService.clearLegacyState();
     StorageService.loadUserState(state, state.currentUser.username);
   }
 }
@@ -345,6 +347,8 @@ async function handleLogin() {
       plan:     account.plan || 'Free',
     };
     resetUserState();
+    // Clear legacy data first to prevent old data from bleeding in
+    StorageService.clearLegacyState();
     StorageService.loadUserState(state, account.username);
     state.prefs.rememberLogin = remember;
     if (remember) {
@@ -401,6 +405,8 @@ async function handleSignup() {
 
   const account = await AuthService.createAccount({ username, password: pw, name, email, address: '', plan: 'Free' });
   state.accounts.push(account);
+  // Clear any legacy global state to ensure new accounts start fresh
+  StorageService.clearLegacyState();
   save();
 
   sucEl.classList.remove('hidden');

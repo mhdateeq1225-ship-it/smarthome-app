@@ -64,6 +64,19 @@ const StorageService = {
     return window.localStorage.getItem(key) !== null;
   },
 
+  clearLegacyState() {
+    // Clear all global/legacy state to prevent data bleeding between accounts
+    this.remove(this.keys.devices);
+    this.remove(this.keys.notifications);
+    this.remove(this.keys.prefs);
+    this.remove(this.keys.budget);
+    this.remove(this.keys.goals);
+    this.remove(this.keys.achievements);
+    this.remove(this.keys.integrations);
+    this.remove(this.keys.automationRules);
+    this.remove(this.keys.gamification);
+  },
+
   userKey(key, username) {
     return `${key}_${username}`;
   },
@@ -179,11 +192,15 @@ const StorageService = {
   loadUserState(state, username) {
     if (!username) return;
 
-    this.migrateLegacyStateToUser(username);
-
     const savedCurrentUser = this.load(this.keys.currentUser);
     const currentUserMatches = savedCurrentUser && savedCurrentUser.username === username;
     const fallbackToGlobal = currentUserMatches || username === 'admin';
+
+    // Only migrate legacy state if the current user matches or is admin.
+    // This prevents old data from bleeding into new accounts.
+    if (fallbackToGlobal) {
+      this.migrateLegacyStateToUser(username);
+    }
 
     const devices = this.load(this.userKey(this.keys.devices, username))
       ?? (fallbackToGlobal ? this.load(this.keys.devices) : null);
