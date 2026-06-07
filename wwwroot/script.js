@@ -258,46 +258,71 @@ function handleForgotPassword(event) {
   event.preventDefault();
   const errEl = document.getElementById('login-error');
   if (errEl) {
-    errEl.textContent = 'Password reset is not available in demo mode. Use admin / 1234 or create a new account.';
+    errEl.textContent = 'Password reset is not available in demo mode. Please create a new account instead.';
     errEl.classList.remove('hidden');
   }
 }
 
 /* ---------------------------------------------------------------
-   AUTH — LOGIN
+   AUTH — LOGIN (REAL BACKEND)
 --------------------------------------------------------------- */
-function handleLogin() {
+async function handleLogin() {
   const uname = document.getElementById('username').value.trim();
   const pw    = document.getElementById('password').value;
   const remember = document.getElementById('remember-me')?.checked;
   const errEl = document.getElementById('login-error');
 
-  const account = state.accounts.find(
-    a => a.username === uname && a.password === pw
-  );
-
-  if (account) {
-    errEl.classList.add('hidden');
-    state.currentUser = {
-      username: account.username,
-      name:     account.name || account.username,
-      email:    account.email || '',
-      address:  account.address || '',
-      plan:     account.plan || 'Free',
-    };
-    state.prefs.rememberLogin = remember;
-    if (remember) {
-      localStorage.setItem('eiq_remember_username', uname);
-    } else {
-      localStorage.removeItem('eiq_remember_username');
-    }
-    localStorage.setItem('eiq_last_login', new Date().toISOString());
-    save();
-    localStorage.setItem('eiq_current_user', JSON.stringify(state.currentUser));
-    showApp();
-  } else {
+  if (!uname || !pw) {
     if (errEl) {
-      errEl.textContent = 'Incorrect credentials. Try admin / 1234 or create a new account.';
+      errEl.textContent = 'Username and password are required.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  try {
+    // Show loading state
+    const loginBtn = document.getElementById('login-btn');
+    const originalText = loginBtn?.textContent;
+    if (loginBtn) loginBtn.textContent = '⏳ Signing in...';
+    if (loginBtn) loginBtn.disabled = true;
+
+    // Call backend API
+    const response = await API.auth.login(uname, pw);
+
+    if (response.success) {
+      // Store token
+      API.setToken(response.token);
+
+      // Store user info
+      state.currentUser = {
+        id: response.user.id,
+        username: response.user.username,
+        name: response.user.fullName || response.user.username,
+        email: response.user.email,
+        address: '',
+        plan: 'Free',
+      };
+
+      if (remember) {
+        localStorage.setItem('eiq_remember_username', uname);
+      } else {
+        localStorage.removeItem('eiq_remember_username');
+      }
+
+      state.prefs.rememberLogin = remember;
+      localStorage.setItem('eiq_last_login', new Date().toISOString());
+      save();
+
+      errEl?.classList.add('hidden');
+      showApp();
+    } else {
+      throw new Error(response.message || 'Login failed');
+    }
+
+  } catch (error) {
+    if (errEl) {
+      errEl.textContent = error.message || 'Login failed. Please try again.';
       errEl.classList.remove('hidden');
     }
     const input = document.getElementById('username');
@@ -305,13 +330,19 @@ function handleLogin() {
       input.style.borderColor = 'var(--danger)';
       setTimeout(() => { input.style.borderColor = ''; }, 1500);
     }
+  } finally {
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+      loginBtn.textContent = originalText || 'Sign In →';
+      loginBtn.disabled = false;
+    }
   }
 }
 
 /* ---------------------------------------------------------------
-   AUTH — 
+   AUTH — SIGNUP (REAL BACKEND)
 --------------------------------------------------------------- */
-function handleSignup() {
+async function handleSignup() {
   const name     = document.getElementById('signup-name').value.trim();
   const email    = document.getElementById('signup-email').value.trim();
   const username = document.getElementById('signup-username').value.trim();
@@ -323,6 +354,7 @@ function handleSignup() {
   errEl.classList.add('hidden');
   sucEl.classList.add('hidden');
 
+  // Validation
   if (!name || !email || !username || !pw || pw.length < 4) {
     errEl.textContent = 'Please fill in all fields. Password must be at least 4 characters.';
     errEl.classList.remove('hidden');
@@ -333,33 +365,58 @@ function handleSignup() {
     errEl.classList.remove('hidden');
     return;
   }
-  if (state.accounts.find(a => a.username === username)) {
-    errEl.textContent = 'Username already taken. Choose a different one.';
+
+  try {
+    const signupBtn = document.getElementById('signup-btn');
+    const originalText = signupBtn?.textContent;
+    if (signupBtn) signupBtn.textContent = '⏳ Creating account...';
+    if (signupBtn) signupBtn.disabled = true;
+
+    // Call backend API
+    const response = await API.auth.signup(username, email, pw, name);
+
+    if (response.success) {
+      sucEl.textContent = '✅ Account created! Redirecting to sign in...';
+      sucEl.classList.remove('hidden');
+
+      // Clear signup fields
+      ['signup-name','signup-email','signup-username','signup-password','signup-confirm']
+        .forEach(id => { document.getElementById(id).value = ''; });
+
+      // Switch to sign-in tab after short delay
+      setTimeout(() => {
+        switchAuthTab('signin');
+        sucEl.classList.add('hidden');
+        document.getElementById('username').value = username;
+      }, 2000);
+    } else {
+      throw new Error(response.message || 'Signup failed');
+    }
+
+  } catch (error) {
+    errEl.textContent = error.message || 'Signup failed. Username or email might already exist.';
     errEl.classList.remove('hidden');
-    return;
+  } finally {
+    const signupBtn = document.getElementById('signup-btn');
+    if (signupBtn) {
+      signupBtn.textContent = originalText || 'Create Account';
+      signupBtn.disabled = false;
+    }
   }
-
-  state.accounts.push({ username, password: pw, name, email, address: '', plan: 'Free' });
-  save();
-
-  sucEl.classList.remove('hidden');
-
-  // Clear signup fields
-  ['signup-name','signup-email','signup-username','signup-password','signup-confirm']
-    .forEach(id => { document.getElementById(id).value = ''; });
-
-  // Switch to sign-in tab after short delay
-  setTimeout(() => {
-    switchAuthTab('signin');
-    sucEl.classList.add('hidden');
-    document.getElementById('username').value = username;
-  }, 2000);
 }
 
 /* ---------------------------------------------------------------
    AUTH — LOGOUT
 --------------------------------------------------------------- */
-function handleLogout() {
+async function handleLogout() {
+  try {
+    await API.auth.logout();
+  } catch (e) {
+    console.warn('Logout API call failed, clearing locally anyway', e);
+  }
+
+  // Clear all auth data
+  API.clearToken();
   state.currentUser = null;
   localStorage.removeItem('eiq_current_user');
   stopAutoRefresh();

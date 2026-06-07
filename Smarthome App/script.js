@@ -258,7 +258,7 @@ function handleForgotPassword(event) {
   event.preventDefault();
   const errEl = document.getElementById('login-error');
   if (errEl) {
-    errEl.textContent = 'Password reset is not available in demo mode. Use admin / 1234 or create a new account.';
+    errEl.textContent = 'Password reset is not available in demo mode. Please create a new account instead.';
     errEl.classList.remove('hidden');
   }
 }
@@ -297,7 +297,7 @@ function handleLogin() {
     showApp();
   } else {
     if (errEl) {
-      errEl.textContent = 'Incorrect credentials. Try admin / 1234 or create a new account.';
+      errEl.textContent = 'Incorrect credentials. Please try again or create a new account.';
       errEl.classList.remove('hidden');
     }
     const input = document.getElementById('username');
